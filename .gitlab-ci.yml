@@ -1,0 +1,13 @@
+image: thlymylab/swakkd
+
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - test
+  - deploy
+
+check:           # This job runs in the build stage, which runs first.
+  stage: test
+  script:
+    - kubectl get nodes
+    - kubectl get pods
+    - echo "Great, everything seems to work"
