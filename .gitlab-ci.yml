@@ -11,4 +11,4 @@ check:           # This job runs in the build stage, which runs first.
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e)
     - kubectl get nodes
     - kubectl get pods
-    - echo "Great, everything seems to work for namespace '$NS'"
+    - echo "Great, everything seems to work for namespace $NS"
