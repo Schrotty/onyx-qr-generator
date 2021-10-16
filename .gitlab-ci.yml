@@ -1,4 +1,4 @@
-image: thlmylab/swakkd
+image: thlmylab/swakkd:1.22
 
 stages:          # List of stages for jobs, and their order of execution
   - build
@@ -8,6 +8,7 @@ stages:          # List of stages for jobs, and their order of execution
 check:           # This job runs in the build stage, which runs first.
   stage: test
   script:
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' -)
     - kubectl get nodes
     - kubectl get pods
-    - echo "Great, everything seems to work"
+    - echo "Great, everything seems to work for namespace '$NS'"
