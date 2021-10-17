@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: landing-page-ingress
+  labels:
+    name: landing-page-ingress
+  annotions:
+    
+spec:
+  rules:
+  - host: welcome-{{ CI_PROJECT_ID }}.edu.th-luebeck.dev
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: landing-page
+            port: 
+              number: 80
