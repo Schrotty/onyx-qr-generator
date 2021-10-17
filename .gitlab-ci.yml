@@ -28,12 +28,11 @@ welcome-page:
     - NS=${NS:-default}
     - echo "Deploying to Kubernetes"
     - kubectl delete secret gitlab-registry-credentials -n $NS || true
-    - |
-      kubectl create secret docker-registry gitlab-registry-credentials \
+    - "kubectl create secret docker-registry gitlab-registry-credentials \
         --docker-server=$CI_REGISTRY \
         --docker-username=image-registry \ 
         --docker-password=$CI_REGISTRY_TOKEN \ 
-        -n $NS
+        -n $NS"
     - mo page/deploy/page-dep.yaml | kubectl apply -n $NS -f - 
     - mo page/deploy/page-svc.yaml | kubectl apply -n $NS -f -
     - mo page/deploy/page-ing.yaml | kubectl apply -n $NS -f -
