@@ -1,14 +1,38 @@
 image: thlmylab/swakkd:1.22
 
 stages:          # List of stages for jobs, and their order of execution
-  - build
-  - test
+  - check
   - deploy
 
-check:           # This job runs in the build stage, which runs first.
-  stage: test
+kubernetes:      # This job runs in the build stage, which runs first.
+  stage: check
   script:
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e)
     - kubectl get nodes
     - kubectl get pods
     - echo "Great, everything seems to work for namespace $NS"
+
+registry:
+  stage: check
+  script:
+    - cd page
+    - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - img build -t $CI_REGISTRY_IMAGE/welcome:latest .
+    - img push $CI_REGISTRY_IMAGE/welcome:latest
+
+welcome-page:
+  stage: deploy
+  when: manual
+  script:
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e)
+    - echo "Deploying to Kubernetes"
+    - kubectl delete secret gitlab-registry-credentials -n $NS || true
+    - |
+      kubectl create secret docker-registry gitlab-registry-credentials \
+        --docker-server=$CI_REGISTRY \
+        --docker-username=image-registry \ 
+        --docker-password=$CI_REGISTRY_TOKEN \ 
+        -n $NS
+    - kubectl apply -n $NAMESPACE -f deploy/page-deploy.yaml
+    - kubectl apply -n $NAMESPACE -f deploy/page-service.yaml
+    - kubectl apply -n $NAMESPACE -f deploy/page-ingress.yaml
