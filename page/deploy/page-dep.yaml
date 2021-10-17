@@ -11,9 +11,10 @@ spec:
       labels:
         app: landing-page
     spec:
+      imagePullSecrets: [{ name: gitlab-registry-credentials }]
       containers:
       - name: landing-page
-        image: {{ $CI_REGISTRY_IMAGE/welcome }}
+        image: {{ $CI_REGISTRY_IMAGE }}/welcome:latest
         resources:
           limits:
             memory: "64Mi"
