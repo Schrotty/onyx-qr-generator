@@ -7,7 +7,7 @@ stages:          # List of stages for jobs, and their order of execution
 kubernetes:      # This job runs in the build stage, which runs first.
   stage: check
   script:
-    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e)
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' -)
     - NS=${NS:-default}
     - kubectl get nodes
     - kubectl get pods
