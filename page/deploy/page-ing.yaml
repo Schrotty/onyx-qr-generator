@@ -4,11 +4,12 @@ metadata:
   name: landing-page-ingress
   labels:
     name: landing-page-ingress
-  annotions:
-    
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    acme.cert-manager.io/http01-edit-in-place: "true"
 spec:
   rules:
-  - host: welcome-{{ CI_PROJECT_ID }}.edu.th-luebeck.dev
+  - host: welcome-{{ CI_PROJECT_ID }}.edu.k8s.th-luebeck.dev
     http:
       paths:
       - pathType: Prefix
@@ -18,3 +19,7 @@ spec:
             name: landing-page
             port: 
               number: 80
+  tls:
+  - hosts:
+    - welcome-{{ CI_PROJECT_ID }}.edu.k8s.th-luebeck.dev
+    secretName: welcome-tls-certificate
