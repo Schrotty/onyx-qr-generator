@@ -7,6 +7,7 @@ stages:                      # Stages for jobs, and their order of execution
 
 variables:
   DEPLOY_REDIS: "true"       # deploys Redis if set to true
+  DEPLOY_MINIO: "true"       # deploys minio if set to true
   DEPLOY_MONGO: "true"       # deploys Mongo if set to true
 
 kubernetes:
@@ -63,3 +64,15 @@ mongo:
     - echo "Deploying Mongo database component"
     - kubectl apply -n $NS -f mongo/deploy/pvc.yaml 
     - kubectl apply -n $NS -f mongo/deploy/
+
+minio:
+  stage: component
+  only:
+    variables:
+      - $DEPLOY_MINIO == "true"
+  script:
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
+    - NS=${NS:='default'}
+    - echo "Deploying minio object storage component"
+    - kubectl apply -n $NS -f mongo/minio/pvc.yaml 
+    - kubectl apply -n $NS -f mongo/minio/

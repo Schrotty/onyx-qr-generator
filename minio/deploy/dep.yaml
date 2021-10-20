@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+spec:
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      volumes:
+      - name: database
+        persistentVolumeClaim: { claimName: minio }
+      containers:
+      - name: minio
+        image: quay.io/minio/minio
+        command: ["minio", "server", "/data", "--console-address", ":9001"]
+        resources:
+          limits:
+            memory: "250Mi"
+            cpu: "100m"
+        ports:
+        - { name: "api", containerPort: 9000 }
+        - { name: "console", containerPort: 9001 }
+        volumeMounts: [{ mountPath: "/data", name: "database" }]
