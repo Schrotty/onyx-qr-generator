@@ -1,17 +1,22 @@
 image: thlmylab/swakkd:1.22
 
-stages:          # List of stages for jobs, and their order of execution
+stages:                      # Stages for jobs, and their order of execution
   - check
+  - component
   - deploy
 
-kubernetes:      # This job runs in the build stage, which runs first.
+variables:
+  DEPLOY_REDIS: "true"       # deploys Redis if set to true
+  DEPLOY_MONGO: "true"       # deploys Mongo if set to true
+
+kubernetes:
   stage: check
   script:
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - kubectl get nodes
     - kubectl get pods
-    - echo "Great, everything seems to work for namespace $NS"
+    - echo "Great, kubectl seems to work with namespace $NS"
 
 registry:
   stage: check
@@ -20,6 +25,7 @@ registry:
     - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - img build -t $CI_REGISTRY_IMAGE/welcome:latest .
     - img push $CI_REGISTRY_IMAGE/welcome:latest
+    - echo "Great, image build and registry push seem to work for namespace $NS"
 
 welcome-page:
   stage: deploy
@@ -32,3 +38,27 @@ welcome-page:
     - mo page/deploy/page-dep.yaml | kubectl apply -n $NS -f - 
     - mo page/deploy/page-svc.yaml | kubectl apply -n $NS -f -
     - mo page/deploy/page-ing.yaml | kubectl apply -n $NS -f -
+
+redis:
+  stage: component
+  only:
+    variables:
+      - $DEPLOY_REDIS == "true"
+  script:
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
+    - NS=${NS:='default'}
+    - echo "Deploying Redis database component"
+    - kubectl apply -n $NS -f redis/deploy/pvc.yaml 
+    - kubectl apply -n $NS -f redis/deploy/ 
+
+mongo:
+  stage: component
+  only:
+    variables:
+      - $DEPLOY_MONGO == "true"
+  script:
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
+    - NS=${NS:='default'}
+    - echo "Deploying Mongo database component"
+    - kubectl apply -n $NS -f mongo/deploy/pvc.yaml 
+    - kubectl apply -n $NS -f mongo/deploy/
