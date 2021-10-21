@@ -16,7 +16,7 @@ spec:
         persistentVolumeClaim: { claimName: rabbitmq }
       containers:
       - name: rabbitmq
-        image: rabbit:3.9-management-alpine
+        image: rabbitmq:3.9-management-alpine
         env:
         - name: RABBITMQ_NODENAME
           value: "rabbitmq"
@@ -25,7 +25,9 @@ spec:
             memory: "128Mi"
             cpu: "500m"
         ports:
-        - containerPort: 5762
-        - containerPort: 15762
+        - name: rabbit
+          containerPort: 5672
+        - name: ui
+          containerPort: 15672
         volumeMounts: [{ mountPath: "/var/lib/rabbitmq", name: "database" }]
 
