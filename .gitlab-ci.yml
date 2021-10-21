@@ -74,5 +74,5 @@ minio:
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying minio object storage component"
-    - kubectl apply -n $NS -f mongo/minio/pvc.yaml 
-    - kubectl apply -n $NS -f mongo/minio/
+    - kubectl apply -n $NS -f minio/deploy/pvc.yaml 
+    - kubectl apply -n $NS -f minio/deploy/
