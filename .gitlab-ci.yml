@@ -9,6 +9,7 @@ variables:
   DEPLOY_REDIS: "true"       # deploys Redis if set to true
   DEPLOY_MINIO: "true"       # deploys minio if set to true
   DEPLOY_MONGO: "true"       # deploys Mongo if set to true
+  DEPLOY_RABBITMQ: "true"    # deploys RabbitMQ if set to true
 
 kubernetes:
   stage: check
@@ -31,15 +32,16 @@ registry:
 welcome-page:
   stage: deploy
   script:
+    - cd page
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying to Kubernetes"
     - kubectl delete secret gitlab-registry-credentials -n $NS || true
     - kubectl create secret docker-registry gitlab-registry-credentials --docker-server=$CI_REGISTRY --docker-username=image-registry --docker-password=$CI_REGISTRY_TOKEN -n $NS
-    - mo page/deploy/page-dep.yaml | kubectl delete -n $NS -f - || true
-    - mo page/deploy/page-dep.yaml | kubectl apply -n $NS -f - 
-    - mo page/deploy/page-svc.yaml | kubectl apply -n $NS -f -
-    - mo page/deploy/page-ing.yaml | kubectl apply -n $NS -f -
+    - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
+    - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
+    - mo deploy/svc.yaml | kubectl apply -n $NS -f -
+    - mo deploy/ing.yaml | kubectl apply -n $NS -f -
 
 redis:
   stage: component
@@ -47,11 +49,12 @@ redis:
     variables:
       - $DEPLOY_REDIS == "true"
   script:
+    - cd redis
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying Redis database component"
-    - kubectl apply -n $NS -f redis/deploy/pvc.yaml 
-    - kubectl apply -n $NS -f redis/deploy/ 
+    - kubectl apply -n $NS -f deploy/pvc.yaml 
+    - kubectl apply -n $NS -f deploy/ 
 
 mongo:
   stage: component
@@ -59,11 +62,12 @@ mongo:
     variables:
       - $DEPLOY_MONGO == "true"
   script:
+    - cd mongo
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying Mongo database component"
-    - kubectl apply -n $NS -f mongo/deploy/pvc.yaml 
-    - kubectl apply -n $NS -f mongo/deploy/
+    - kubectl apply -n $NS -f deploy/pvc.yaml 
+    - kubectl apply -n $NS -f deploy/
 
 minio:
   stage: component
@@ -71,8 +75,22 @@ minio:
     variables:
       - $DEPLOY_MINIO == "true"
   script:
+    - cd minio
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying minio object storage component"
-    - kubectl apply -n $NS -f minio/deploy/pvc.yaml 
-    - kubectl apply -n $NS -f minio/deploy/
+    - kubectl apply -n $NS -f deploy/pvc.yaml 
+    - kubectl apply -n $NS -f deploy/
+  
+rabbitmq:
+  stage: component
+  only:
+    variables:
+      - $DEPLOY_RABBITMQ == "true"
+  script:
+    - cd rabbitmq
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
+    - NS=${NS:='default'}
+    - echo "Deploying RabbitMQ message broker component"
+    - kubectl apply -n $NS -f deploy/pvc.yaml 
+    - kubectl apply -n $NS -f deploy/

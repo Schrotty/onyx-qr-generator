@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+spec:
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      volumes:
+      - name: database
+        persistentVolumeClaim: { claimName: rabbitmq }
+      containers:
+      - name: rabbitmq
+        image: rabbit:3.9-management-alpine
+        env:
+        - name: RABBITMQ_NODENAME
+          value: "rabbitmq"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5762
+        - containerPort: 15762
+        volumeMounts: [{ mountPath: "/var/lib/rabbitmq", name: "database" }]
+
