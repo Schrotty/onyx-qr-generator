@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: landing-page
+spec:
+  selector:
+    matchLabels:
+      app: landing-page
+  template:
+    metadata:
+      labels:
+        app: landing-page
+    spec:
+      imagePullSecrets: [{ name: gitlab-registry-credentials }]
+      containers:
+      - name: landing-page
+        image: {{ CI_REGISTRY_IMAGE }}/nginx:latest
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 80

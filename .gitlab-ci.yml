@@ -1,8 +1,9 @@
 image: thlmylab/swakkd:1.22
 
-stages:                      # Stages for jobs, and their order of execution
+stages:                      # Stages for jobs in their order of execution
   - check
   - component
+  - build
   - deploy
 
 variables:
@@ -23,16 +24,38 @@ kubernetes:
 registry:
   stage: check
   script:
-    - cd page
+    - cd nginx
     - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - img build -t $CI_REGISTRY_IMAGE/welcome:latest .
-    - img push $CI_REGISTRY_IMAGE/welcome:latest
+    - img build -t $CI_REGISTRY_IMAGE/nginx:latest .
+    - img push $CI_REGISTRY_IMAGE/nginx:latest
     - echo "Great, image build and registry push seem to work for namespace $NS"
 
-welcome-page:
+nodejs-express:
+  stage: build
+  script:
+    - cd nodejs-express
+    - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - img build -t $CI_REGISTRY_IMAGE/nodejs-express:latest .
+    - img push $CI_REGISTRY_IMAGE/nodejs-express:latest
+
+nodejs-express-svc:
   stage: deploy
   script:
-    - cd page
+    - cd nodejs-express
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
+    - NS=${NS:='default'}
+    - echo "Deploying to Kubernetes"
+    - kubectl delete secret gitlab-registry-credentials -n $NS || true
+    - kubectl create secret docker-registry gitlab-registry-credentials --docker-server=$CI_REGISTRY --docker-username=image-registry --docker-password=$CI_REGISTRY_TOKEN -n $NS
+    - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
+    - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
+    - mo deploy/svc.yaml | kubectl apply -n $NS -f -
+    - mo deploy/ing.yaml | kubectl apply -n $NS -f -  
+
+nginx-svc:
+  stage: deploy
+  script:
+    - cd nginx
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying to Kubernetes"
