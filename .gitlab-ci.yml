@@ -7,6 +7,7 @@ stages:                      # Stages for jobs in their order of execution
   - deploy
 
 variables:
+  DEPLOY_INGRESS: "true"     # deploys Ingress for project if set to true
   DEPLOY_REDIS: "true"       # deploys Redis if set to true
   DEPLOY_MINIO: "true"       # deploys minio if set to true
   DEPLOY_MONGO: "true"       # deploys Mongo if set to true
@@ -50,7 +51,6 @@ nodejs-express-svc:
     - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
     - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
     - mo deploy/svc.yaml | kubectl apply -n $NS -f -
-    - mo deploy/ing.yaml | kubectl apply -n $NS -f -  
 
 nginx-svc:
   stage: deploy
@@ -64,6 +64,16 @@ nginx-svc:
     - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
     - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
     - mo deploy/svc.yaml | kubectl apply -n $NS -f -
+
+ingress:
+  stage: deploy
+  only:
+    variables:
+      - $DEPLOY_INGRESS == "true"
+  script:
+    - cd ingress
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
+    - NS=${NS:='default'}
     - mo deploy/ing.yaml | kubectl apply -n $NS -f -
 
 redis:

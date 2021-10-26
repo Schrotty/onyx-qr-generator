@@ -1,9 +1,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: landing-page-ingress
+  name: project-ingress
   labels:
-    name: landing-page-ingress
+    name: project-ingress
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     acme.cert-manager.io/http01-edit-in-place: "true"
@@ -16,10 +16,10 @@ spec:
         path: "/"
         backend:
           service:
-            name: landing-page
+            name: nginx
             port: 
               number: 80
   tls:
   - hosts:
     - welcome-{{ CI_PROJECT_ID }}.edu.k8s.th-luebeck.dev
-    secretName: welcome-tls-certificate
+    secretName: ingress-tls-certificate
