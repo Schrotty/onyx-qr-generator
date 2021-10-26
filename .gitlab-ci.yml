@@ -1,19 +1,21 @@
 image: thlmylab/swakkd:1.22
 
-stages:                      # Stages for jobs in their order of execution
+stages:                         # Stages for jobs in their order of execution
   - check
   - component
   - build
   - deploy
 
 variables:
-  DEPLOY_INGRESS: "true"     # deploys Ingress for project if set to true
-  DEPLOY_REDIS: "true"       # deploys Redis if set to true
-  DEPLOY_MINIO: "true"       # deploys minio if set to true
-  DEPLOY_MONGO: "true"       # deploys Mongo if set to true
-  DEPLOY_RABBITMQ: "true"    # deploys RabbitMQ if set to true
+  DEPLOY_INGRESS: "false"       # deploys Ingress for project if set to true
+  DEPLOY_NGINX: "true"          # deploys NGINX static web server if set to true
+  DEPLOY_NODEJS_EXPRESS: "true" # deploy nodejs/expressjs if set to true
+  DEPLOY_REDIS: "true"          # deploys Redis if set to true
+  DEPLOY_MINIO: "true"          # deploys minio if set to true
+  DEPLOY_MONGO: "true"          # deploys Mongo if set to true
+  DEPLOY_RABBITMQ: "true"       # deploys RabbitMQ if set to true
 
-kubernetes:
+kubernetes:                     # checks K8S cluster access
   stage: check
   script:
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
@@ -22,7 +24,7 @@ kubernetes:
     - kubectl get pods
     - echo "Great, kubectl seems to work with namespace $NS"
 
-registry:
+registry:                       # checks Gitlab registry access (for image builds)
   stage: check
   script:
     - cd nginx
@@ -31,7 +33,7 @@ registry:
     - img push $CI_REGISTRY_IMAGE/nginx:latest
     - echo "Great, image build and registry push seem to work for namespace $NS"
 
-nodejs-express:
+nodejs-express:                 # builds nodejs container image
   stage: build
   script:
     - cd nodejs-express
@@ -39,8 +41,11 @@ nodejs-express:
     - img build -t $CI_REGISTRY_IMAGE/nodejs-express:latest .
     - img push $CI_REGISTRY_IMAGE/nodejs-express:latest
 
-nodejs-express-svc:
+nodejs-express-svc:            # deploys nodejs web service
   stage: deploy
+  only:
+    variables:
+      - $DEPLOY_NODEJS_EXPRESS == "true"
   script:
     - cd nodejs-express
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
@@ -52,8 +57,11 @@ nodejs-express-svc:
     - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
     - mo deploy/svc.yaml | kubectl apply -n $NS -f -
 
-nginx-svc:
+nginx-svc:                      # deploys static nginx web service
   stage: deploy
+  only:
+    variables:
+      - $DEPLOY_NGINX == "true"
   script:
     - cd nginx
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
@@ -65,7 +73,7 @@ nginx-svc:
     - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
     - mo deploy/svc.yaml | kubectl apply -n $NS -f -
 
-ingress:
+ingress:                       # deploys project ingress to expose services cluster externally
   stage: deploy
   only:
     variables:
@@ -76,7 +84,7 @@ ingress:
     - NS=${NS:='default'}
     - mo deploy/ing.yaml | kubectl apply -n $NS -f -
 
-redis:
+redis:                         # deploys redis database
   stage: component
   only:
     variables:
@@ -89,7 +97,7 @@ redis:
     - kubectl apply -n $NS -f deploy/pvc.yaml 
     - kubectl apply -n $NS -f deploy/ 
 
-mongo:
+mongo:                         # deploys mongo database
   stage: component
   only:
     variables:
@@ -102,7 +110,7 @@ mongo:
     - kubectl apply -n $NS -f deploy/pvc.yaml 
     - kubectl apply -n $NS -f deploy/
 
-minio:
+minio:                         # deploys minio object storage (S3 protocol)
   stage: component
   only:
     variables:
@@ -115,7 +123,7 @@ minio:
     - kubectl apply -n $NS -f deploy/pvc.yaml 
     - kubectl apply -n $NS -f deploy/
   
-rabbitmq:
+rabbitmq:                      # deploys RabbitMQ message broker
   stage: component
   only:
     variables:
