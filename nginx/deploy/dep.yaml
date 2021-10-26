@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: landing-page
+  name: nginx
 spec:
   selector:
     matchLabels:
-      app: landing-page
+      app: nginx
   template:
     metadata:
       labels:
-        app: landing-page
+        app: nginx
     spec:
       imagePullSecrets: [{ name: gitlab-registry-credentials }]
       containers:
-      - name: landing-page
+      - name: nginx
         image: {{ CI_REGISTRY_IMAGE }}/nginx:latest
         resources:
           limits:
