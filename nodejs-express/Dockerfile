@@ -1,6 +1,6 @@
 FROM node:17-alpine
 
-ADD app.js /app/package.json
+ADD package.json /app/package.json
 ADD app.js /app/app.js
 
 WORKDIR /app
