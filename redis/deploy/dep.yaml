@@ -20,7 +20,7 @@ spec:
         command: ["redis-server", "--bind", "0.0.0.0", "--appendonly", "yes", "--save", "\"\"", "--loglevel", "verbose"]
         resources:
           limits:
-            memory: "250M"
+            memory: "250Mi"
             cpu: "100m"
         ports: [{ containerPort: 6379 }]
         volumeMounts: [{ mountPath: "/data", name: "database" }]

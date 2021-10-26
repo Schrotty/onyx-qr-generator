@@ -22,8 +22,8 @@ spec:
           value: "rabbitmq"
         resources:
           limits:
-            memory: "128Mi"
-            cpu: "500m"
+            memory: "250Mi"
+            cpu: "100m"
         ports:
         - name: rabbit
           containerPort: 5672
