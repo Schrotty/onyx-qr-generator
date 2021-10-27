@@ -82,7 +82,7 @@ ingress:                       # deploys project ingress to expose services clus
     - cd ingress
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
-    - mo deploy/ing.yaml | kubectl apply -n $NS -f -
+    - mo ing.yaml | kubectl apply -n $NS -f -
 
 redis:                         # deploys redis database
   stage: component
