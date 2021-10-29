@@ -12,6 +12,10 @@ __Ingress:__
 
 - [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/): Kubernetes Ingress Resource, um Services Cluster-extern bereitstellen zu können
 
+Wenn Sie das Projekt so konfigurieren, dass Sie einen Ingress (externer Webzugriff auf Services) deployen, dann wird ein HTTPS Endpunkt unter `https://welcome-<projectid>.edu.k8s.th-luebeck.dev` eingerichtet, der auf den Nginx-Service zeigt. Sie können durch Anpassung der `ingress/ing.yaml` Datei, den Ingress auf andere Services umleiten oder weitere Services für öffentlichen Webzugang freischalten.
+
+Die `projectid` finden Sie in der Gitlab Weboberfläche unter dem Namen dieses Gitlab-Projekts.
+
 __Web-Frontend:__
 
 - [Nginx](https://nginx.com): Webserver, z.B. zum Hosten von statischen Webseiten / Web-UIs
