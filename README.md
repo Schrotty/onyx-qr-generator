@@ -23,6 +23,7 @@ __Web-Frontend:__
 __Backend:__
 
 - [Nodejs + express](https://expressjs.com/de/): Web-Framework für Nodejs
+- [Python Flask](https://flask.palletsprojects.com): Web-Framework für Python
 
 __Datenbanken und Storage:__
 
