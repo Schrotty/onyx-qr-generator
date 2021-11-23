@@ -7,13 +7,14 @@ stages:                         # Stages for jobs in their order of execution
   - deploy
 
 variables:
-  DEPLOY_INGRESS: "false"       # deploys Ingress for project if set to true
-  DEPLOY_NGINX: "true"          # deploys NGINX static web server if set to true
-  DEPLOY_NODEJS_EXPRESS: "true" # deploy nodejs/expressjs if set to true
-  DEPLOY_REDIS: "true"          # deploys Redis if set to true
-  DEPLOY_MINIO: "true"          # deploys minio if set to true
-  DEPLOY_MONGO: "true"          # deploys Mongo if set to true
-  DEPLOY_RABBITMQ: "true"       # deploys RabbitMQ if set to true
+  DEPLOY_INGRESS: "false"        # deploys Ingress for project if set to true
+  DEPLOY_NGINX: "false"          # deploys NGINX static web server if set to true
+  DEPLOY_NODEJS_EXPRESS: "false" # deploy nodejs/expressjs if set to true
+  DEPLOY_PYTHON_FLASK: "false"   # deploy python-flask if set to true
+  DEPLOY_REDIS: "false"          # deploys Redis if set to true
+  DEPLOY_MINIO: "false"          # deploys minio if set to true
+  DEPLOY_MONGO: "false"          # deploys Mongo if set to true
+  DEPLOY_RABBITMQ: "false"       # deploys RabbitMQ if set to true
 
 kubernetes:                     # checks K8S cluster access and configures gitlab-registry-credentials for image pulls
   stage: check
@@ -48,6 +49,28 @@ nodejs-express-svc:            # deploys nodejs web service
       - $DEPLOY_NODEJS_EXPRESS == "true"
   script:
     - cd nodejs-express
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
+    - NS=${NS:='default'}
+    - echo "Deploying to Kubernetes"
+    - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
+    - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
+    - mo deploy/svc.yaml | kubectl apply -n $NS -f -
+
+python-flask:                 # builds python-flask container image
+  stage: build
+  script:
+    - cd python-flask
+    - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - img build -t $CI_REGISTRY_IMAGE/python-flask:latest .
+    - img push $CI_REGISTRY_IMAGE/python-flask:latest
+
+python-flask-svc:            # deploys python-flask web service
+  stage: deploy
+  only:
+    variables:
+      - $DEPLOY_PYTHON_FLASK == "true"
+  script:
+    - cd python-flask
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying to Kubernetes"

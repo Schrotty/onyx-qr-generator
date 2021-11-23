@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-express
+spec:
+  selector:
+    matchLabels:
+      app: python-flask
+  template:
+    metadata:
+      labels:
+        app: python-flask
+    spec:
+      imagePullSecrets: [{ name: gitlab-registry-credentials }]
+      containers:
+      - name: python-flask
+        image: {{ CI_REGISTRY_IMAGE }}/python-flask:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 8080
