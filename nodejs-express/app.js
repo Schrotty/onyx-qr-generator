@@ -3,6 +3,7 @@ const app = express()
 const port = 8080
 
 app.get('/', (req, res) => {
+  console.log(`${req.method} ${req.host} ${req.originalUrl}`)
   res.send('Hello World!')
 })
 
