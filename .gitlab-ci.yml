@@ -1,6 +1,7 @@
 image: thlmylab/swakkd:1.22
 
-stages:                         # Stages for jobs in their order of execution
+# Stages for jobs in their order of execution
+stages:
   - check
   - component
   - build
@@ -16,7 +17,8 @@ variables:
   DEPLOY_MONGO: "false"          # deploys Mongo if set to true
   DEPLOY_RABBITMQ: "false"       # deploys RabbitMQ if set to true
 
-kubernetes:                     # checks K8S cluster access and configures gitlab-registry-credentials for image pulls
+# checks K8S cluster access and configures gitlab-registry-credentials for image pulls
+kubernetes:
   stage: check
   script:
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
@@ -25,7 +27,8 @@ kubernetes:                     # checks K8S cluster access and configures gitla
     - kubectl create secret docker-registry gitlab-registry-credentials --docker-server=$CI_REGISTRY --docker-username=image-registry --docker-password=$CI_REGISTRY_TOKEN -n $NS
     - echo "Great, kubectl seems to work with namespace $NS"
 
-registry:                       # checks Gitlab registry access (for image builds)
+# checks Gitlab registry access (for image builds)
+registry:
   stage: check
   script:
     - cd nginx
@@ -34,7 +37,7 @@ registry:                       # checks Gitlab registry access (for image build
     - img push $CI_REGISTRY_IMAGE/nginx:latest
     - echo "Great, image build and registry push seem to work for namespace $NS"
 
-nodejs-express:                 # builds nodejs container image
+nodejs-express: # builds nodejs container image
   stage: build
   script:
     - cd nodejs-express
@@ -42,7 +45,7 @@ nodejs-express:                 # builds nodejs container image
     - img build -t $CI_REGISTRY_IMAGE/nodejs-express:latest .
     - img push $CI_REGISTRY_IMAGE/nodejs-express:latest
 
-nodejs-express-svc:            # deploys nodejs web service
+nodejs-express-svc: # deploys nodejs web service
   stage: deploy
   only:
     variables:
@@ -53,10 +56,10 @@ nodejs-express-svc:            # deploys nodejs web service
     - NS=${NS:='default'}
     - echo "Deploying to Kubernetes"
     - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
-    - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
+    - mo deploy/dep.yaml | kubectl apply -n $NS -f -
     - mo deploy/svc.yaml | kubectl apply -n $NS -f -
 
-python-flask:                 # builds python-flask container image
+python-flask: # builds python-flask container image
   stage: build
   script:
     - cd python-flask
@@ -64,7 +67,7 @@ python-flask:                 # builds python-flask container image
     - img build -t $CI_REGISTRY_IMAGE/python-flask:latest .
     - img push $CI_REGISTRY_IMAGE/python-flask:latest
 
-python-flask-svc:            # deploys python-flask web service
+python-flask-svc: # deploys python-flask web service
   stage: deploy
   only:
     variables:
@@ -75,10 +78,10 @@ python-flask-svc:            # deploys python-flask web service
     - NS=${NS:='default'}
     - echo "Deploying to Kubernetes"
     - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
-    - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
+    - mo deploy/dep.yaml | kubectl apply -n $NS -f -
     - mo deploy/svc.yaml | kubectl apply -n $NS -f -
 
-nginx-svc:                      # deploys static nginx web service
+nginx-svc: # deploys static nginx web service
   stage: deploy
   only:
     variables:
@@ -89,10 +92,10 @@ nginx-svc:                      # deploys static nginx web service
     - NS=${NS:='default'}
     - echo "Deploying to Kubernetes"
     - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
-    - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
+    - mo deploy/dep.yaml | kubectl apply -n $NS -f -
     - mo deploy/svc.yaml | kubectl apply -n $NS -f -
 
-ingress:                       # deploys project ingress to expose services cluster externally
+ingress: # deploys project ingress to expose services cluster externally
   stage: deploy
   only:
     variables:
@@ -103,7 +106,7 @@ ingress:                       # deploys project ingress to expose services clus
     - NS=${NS:='default'}
     - mo ing.yaml | kubectl apply -n $NS -f -
 
-redis:                         # deploys redis database
+redis: # deploys redis database
   stage: component
   only:
     variables:
@@ -113,10 +116,10 @@ redis:                         # deploys redis database
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying Redis database component"
-    - kubectl apply -n $NS -f deploy/pvc.yaml 
-    - kubectl apply -n $NS -f deploy/ 
+    - kubectl apply -n $NS -f deploy/pvc.yaml
+    - kubectl apply -n $NS -f deploy/
 
-mongo:                         # deploys mongo database
+mongo: # deploys mongo database
   stage: component
   only:
     variables:
@@ -126,10 +129,10 @@ mongo:                         # deploys mongo database
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying Mongo database component"
-    - kubectl apply -n $NS -f deploy/pvc.yaml 
+    - kubectl apply -n $NS -f deploy/pvc.yaml
     - kubectl apply -n $NS -f deploy/
 
-minio:                         # deploys minio object storage (S3 protocol)
+minio: # deploys minio object storage (S3 protocol)
   stage: component
   only:
     variables:
@@ -139,10 +142,10 @@ minio:                         # deploys minio object storage (S3 protocol)
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying minio object storage component"
-    - kubectl apply -n $NS -f deploy/pvc.yaml 
+    - kubectl apply -n $NS -f deploy/pvc.yaml
     - kubectl apply -n $NS -f deploy/
-  
-rabbitmq:                      # deploys RabbitMQ message broker
+
+rabbitmq: # deploys RabbitMQ message broker
   stage: component
   only:
     variables:
@@ -152,5 +155,5 @@ rabbitmq:                      # deploys RabbitMQ message broker
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying RabbitMQ message broker component"
-    - kubectl apply -n $NS -f deploy/pvc.yaml 
+    - kubectl apply -n $NS -f deploy/pvc.yaml
     - kubectl apply -n $NS -f deploy/
