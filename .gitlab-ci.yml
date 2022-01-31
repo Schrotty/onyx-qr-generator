@@ -31,7 +31,7 @@ kubernetes:
 onyx-frontend:
   stage: build
   script:
-    - cd frontend
+    - cd onyx/frontend
     - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - img build -t $CI_REGISTRY_IMAGE/onyx-frontend:latest .
     - img push $CI_REGISTRY_IMAGE/onyx-frontend:latest
@@ -39,7 +39,7 @@ onyx-frontend:
 onyx-backend:
   stage: build
   script:
-    - cd backend
+    - cd onyx/backend
     - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - img build -t $CI_REGISTRY_IMAGE/onyx-backend:latest .
     - img push $CI_REGISTRY_IMAGE/onyx-backend:latest
