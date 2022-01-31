@@ -27,24 +27,24 @@ kubernetes:
     - kubectl create secret docker-registry gitlab-registry-credentials --docker-server=$CI_REGISTRY --docker-username=image-registry --docker-password=$CI_REGISTRY_TOKEN -n $NS
     - echo "Great, kubectl seems to work with namespace $NS"
 
-# checks Gitlab registry access (for image builds)
-registry:
-  stage: check
-  script:
-    - cd nginx
-    - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - img build -t $CI_REGISTRY_IMAGE/nginx:latest .
-    - img push $CI_REGISTRY_IMAGE/nginx:latest
-    - echo "Great, image build and registry push seem to work for namespace $NS"
-
-nodejs-express: # builds nodejs container image
+# build & push docker images for frontend and backend
+onyx-frontend:
   stage: build
   script:
-    - cd nodejs-express
+    - cd frontend
     - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - img build -t $CI_REGISTRY_IMAGE/nodejs-express:latest .
-    - img push $CI_REGISTRY_IMAGE/nodejs-express:latest
+    - img build -t $CI_REGISTRY_IMAGE/onyx-frontend:latest .
+    - img push $CI_REGISTRY_IMAGE/onyx-frontend:latest
 
+onyx-backend:
+  stage: build
+  script:
+    - cd backend
+    - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - img build -t $CI_REGISTRY_IMAGE/onyx-backend:latest .
+    - img push $CI_REGISTRY_IMAGE/onyx-backend:latest
+
+# === predefinied ===
 nodejs-express-svc: # deploys nodejs web service
   stage: deploy
   only:
@@ -58,14 +58,6 @@ nodejs-express-svc: # deploys nodejs web service
     - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
     - mo deploy/dep.yaml | kubectl apply -n $NS -f -
     - mo deploy/svc.yaml | kubectl apply -n $NS -f -
-
-python-flask: # builds python-flask container image
-  stage: build
-  script:
-    - cd python-flask
-    - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - img build -t $CI_REGISTRY_IMAGE/python-flask:latest .
-    - img push $CI_REGISTRY_IMAGE/python-flask:latest
 
 python-flask-svc: # deploys python-flask web service
   stage: deploy
