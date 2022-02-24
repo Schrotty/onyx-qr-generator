@@ -1,8 +1,16 @@
-import Vue from 'vue'
-import App from './App.vue'
+import VueLogger from "vuejs3-logger";
+import { createApp } from "vue";
+import App from "./App.vue";
+import "./index.css";
 
-Vue.config.productionTip = false
+const options = {
+  isEnabled: true,
+  logLevel: "debug",
+  stringifyArguments: false,
+  showLogLevel: true,
+  showMethodName: true,
+  separator: "|",
+  showConsoleColors: true,
+};
 
-new Vue({
-  render: h => h(App),
-}).$mount('#app')
+createApp(App).use(VueLogger, options).mount("body");

@@ -1,28 +1,23 @@
+<script setup>
+import ControlBar from "./components/ControlBar.vue";
+import CentralControl from "./components/CentralControl.vue";
+import PlainInput from "./components/tabs/PlainInput.vue";
+import URLInput from "./components/tabs/URLInput.vue";
+
+import { markRaw, ref } from "vue";
+
+const tabs = ref([
+  { id: 0, title: "Freitext", component: markRaw(PlainInput) },
+  { id: 1, title: "URL", component: markRaw(URLInput) },
+]);
+</script>
+
 <template>
-  <div id="app">
-    <img class="mx-auto" alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="relative top-0 bg-indigo-800 h-1/3 shadow-lg"></div>
+  <div class="absolute top-0 h-2/3 w-full">
+    <ControlBar title="Onyx" subtitle="QR-Generator" />
+    <CentralControl :tabs="tabs" />
   </div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
-</script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style></style>

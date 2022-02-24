@@ -1,4 +1,25 @@
 @tailwind base;
 @tailwind components;
-@tailwind screens;
 @tailwind utilities;
+
+@font-face {
+    font-family: "Slabo 13px";
+    src: url("assets/Slabo13px-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Raleway";
+    src: url("assets/Raleway-Regular.ttf");
+}
+
+@layer base {
+    html {
+        font-family: "Raleway", system-ui, sans-serif;
+    }
+}
+
+
+h1 {
+    font-family: "Slabo 13px", serif;
+    font-size: 32px;
+}
