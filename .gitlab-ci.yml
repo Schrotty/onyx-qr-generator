@@ -52,8 +52,9 @@ deploy-backend:
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying 'onyx-backend' to Kubernetes"
+    - mo backend/deployment.yaml | kubectl delete -n $NS -f - || true
     - mo backend/deployment.yaml | kubectl apply -n $NS -f -
-    - mo deploy/service.yaml | kubectl apply -n $NS -f -
+    - mo backend/service.yaml | kubectl apply -n $NS -f -
 
 deploy-frontend:
   stage: deploy
@@ -63,8 +64,9 @@ deploy-frontend:
     - NS=${NS:='default'}
     - echo "Deploying 'onyx-frontend' to Kubernetes"
     - mo frontend/config.yaml | kubectl apply -n $NS -f -
+    - mo frontend/deployment.yaml | kubectl delete -n $NS -f - || true
     - mo frontend/deployment.yaml | kubectl apply -n $NS -f -
-    - mo deploy/service.yaml | kubectl apply -n $NS -f -
+    - mo frontend/service.yaml | kubectl apply -n $NS -f -
 
 deploy-ingress:
   stage: deploy
