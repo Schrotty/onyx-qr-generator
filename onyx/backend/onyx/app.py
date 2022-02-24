@@ -1,10 +1,20 @@
 import socket
 
-from flask import Flask
+from flask import Flask, jsonify
+from flask_restful import Api
+
+from onyx.resources.PlainCode import BasicCode
 
 app = Flask(__name__)
+api = Api(app)
 
 
-@app.route('/')
-def hello_world():
-    return f'Hello World! Delivered by {socket.getfqdn()}'
+@app.route('/api/heartbeat')
+def heartbeat():
+    return jsonify(dict(host=socket.getfqdn(), status="online"))
+
+
+api.add_resource(BasicCode, '/api/static')
+
+if __name__ == '__main__':
+    app.run(debug=True, port=8080)
