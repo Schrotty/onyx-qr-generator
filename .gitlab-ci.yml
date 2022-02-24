@@ -52,7 +52,6 @@ deploy-backend:
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying 'onyx-backend' to Kubernetes"
-    - mo backend/deployment.yaml | kubectl delete -n $NS -f - || true
     - mo backend/deployment.yaml | kubectl apply -n $NS -f -
     - mo deploy/service.yaml | kubectl apply -n $NS -f -
 
@@ -64,7 +63,6 @@ deploy-frontend:
     - NS=${NS:='default'}
     - echo "Deploying 'onyx-frontend' to Kubernetes"
     - mo frontend/config.yaml | kubectl apply -n $NS -f -
-    - mo frontend/deployment.yaml | kubectl delete -n $NS -f - || true
     - mo frontend/deployment.yaml | kubectl apply -n $NS -f -
     - mo deploy/service.yaml | kubectl apply -n $NS -f -
 
@@ -75,7 +73,7 @@ deploy-ingress:
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
     - echo "Deploying Ingress to Kubernetes"
-    - mo ingress.yaml | kubectl apply -n $NS -f -
+    - mo ingress_prod.yaml | kubectl apply -n $NS -f -
 
 # === predefinied ===
 nodejs-express-svc: # deploys nodejs web service
