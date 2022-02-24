@@ -100,7 +100,7 @@ function downloadImage() {
 }
 
 function fetchImage() {
-  fetchOptions("config/onyx.json");
+  fetchOptions("/config/onyx.json");
 
   axios
     .post(apiEndpoint.value, {
