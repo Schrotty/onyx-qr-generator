@@ -49,8 +49,8 @@ onyx-backend:
 deploy-backend:
   stage: deploy
   only:
-  variables:
-    - $DEPLOY == "true"
+    variables:
+      - $DEPLOY == "true"
   script:
     - cd deploy
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
