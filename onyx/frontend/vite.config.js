@@ -7,6 +7,7 @@ import Dotenv from "dotenv-webpack";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
+  assetsInclude: ["**/*.json"],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
