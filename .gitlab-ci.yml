@@ -48,9 +48,9 @@ onyx-backend:
 # deploy to kubernetes
 deploy-backend:
   stage: deploy
-    only:
-    variables:
-      - $DEPLOY == "true"
+  only:
+  variables:
+    - $DEPLOY == "true"
   script:
     - cd deploy
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
@@ -62,7 +62,7 @@ deploy-backend:
 
 deploy-frontend:
   stage: deploy
-    only:
+  only:
     variables:
       - $DEPLOY == "true"
   script:
