@@ -63,7 +63,7 @@
 <script setup>
 import { TabGroup, TabList, Tab, TabPanels } from "@headlessui/vue";
 import axios from "axios";
-import { inject, ref } from "vue";
+import { inject, onMounted, ref } from "vue";
 
 // Props
 defineProps(["tabs"]);
@@ -72,7 +72,7 @@ defineProps(["tabs"]);
 const logger = inject("vuejs3-logger");
 const image = ref("default_code.jpg");
 const plainTextValue = ref("");
-const apiEndpoint = ref("");
+const apiEndpoint = ref("/api/static");
 
 // Functions
 async function fetchOptions(url) {
@@ -114,6 +114,11 @@ function fetchImage() {
       logger.error(error);
     });
 }
+
+// Lifecycle Event Listener
+onMounted(() => {
+  fetchOptions("/config/onyx.json");
+});
 </script>
 
 <style scoped></style>
