@@ -7,5 +7,5 @@ spec:
     app: onyx-backend
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 8081
+      port: 44660
+      targetPort: 44660

@@ -3,7 +3,6 @@ kind: Ingress
 metadata:
   name: onyx-ingress
   annotations:
-    nginx.org/rewrites: serviceName=onyx-backend rewrite=/api/; serviceName=onyx-frontend rewrite=/
     nginx.ingress.kubernetes.io/enable-cors: "true"
 
 spec:
@@ -17,11 +16,10 @@ spec:
             name: onyx-frontend
             port:
               number: 80
-              
       - path: /api/
         pathType: Prefix
         backend:
           service:
             name: onyx-backend
             port:
-              number: 80
+              number: 44660

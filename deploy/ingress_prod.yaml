@@ -3,7 +3,6 @@ kind: Ingress
 metadata:
   name: onyx-ingress
   annotations:
-    nginx.org/rewrites: serviceName=onyx-backend rewrite=/api/; serviceName=onyx-frontend rewrite=/
     nginx.ingress.kubernetes.io/enable-cors: "true"
     cert-manager.io/cluster-issuer: letsencrypt
     acme.cert-manager.io/http01-edit-in-place: "true"
@@ -26,7 +25,7 @@ spec:
           service:
             name: onyx-backend
             port:
-              number: 80
+              number: 44660
   tls:
   - hosts:
     - welcome-{{ CI_PROJECT_ID }}.edu.k8s.th-luebeck.dev
