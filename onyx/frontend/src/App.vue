@@ -5,10 +5,15 @@ import PlainInput from "./components/tabs/PlainInput.vue";
 import URLInput from "./components/tabs/URLInput.vue";
 
 import { markRaw, ref } from "vue";
+import { Facebook, Instagram, Link, Mail, Twitter, Type} from "lucide-vue-next";
 
 const tabs = ref([
-  { id: 0, title: "Freitext", component: markRaw(PlainInput) },
-  { id: 1, title: "URL", component: markRaw(URLInput) },
+  { id: 0, title: "URL", icon: markRaw(Link), component: markRaw(URLInput) },
+  { id: 1, title: "Text", icon: markRaw(Type), component: markRaw(PlainInput) },
+  { id: 2, title: "Twitter", icon: markRaw(Twitter), component: markRaw(URLInput) },
+  { id: 3, title: "Facebook", icon: markRaw(Facebook), component: markRaw(PlainInput) },
+  { id: 4, title: "Instagram", icon: markRaw(Instagram), component: markRaw(URLInput) },
+  { id: 5, title: "E-Mail", icon: markRaw(Mail), component: markRaw(PlainInput) },
 ]);
 </script>
 

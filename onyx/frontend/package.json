@@ -12,6 +12,7 @@
     "@heroicons/vue": "^1.0.5",
     "@tailwindcss/forms": "^0.4.0",
     "axios": "^0.26.0",
+    "lucide-vue-next": "^0.17.2",
     "spectre.css": "^0.5.9",
     "vue": "^3.2.29",
     "vuejs3-logger": "1.0.0"

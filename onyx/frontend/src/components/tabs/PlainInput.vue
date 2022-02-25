@@ -1,14 +1,14 @@
 <template>
   <TabPanel>
     <div class="flex items-center space-x-6">
-      <label class="block w-full h-full">
+      <label class="block w-full h-fit">
         <span>Freitext:</span>
         <textarea
           :value="modelValue"
           @input="$emit('update:modelValue', $event.target.value)"
           rows="5"
           type="text"
-          class="w-full h-full my-4"
+          class="w-full h-full"
           placeholder="Lorem Ipsum"
         />
       </label>
