@@ -20,6 +20,8 @@ spec:
         env:
         - name: PORT
           value: "44660"
+        - name: ONYX_LOG_LEVEL
+          value: "INFO"
         ports:
         - containerPort: 44660
         readinessProbe:

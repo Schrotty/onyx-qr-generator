@@ -19,6 +19,7 @@ RUN apk add --no-cache jpeg-dev zlib-dev musl-dev
 ENV PATH="/opt/venv/bin:$PATH"
 ENV HOST 0.0.0.0
 ENV PORT 5000
+ENV ONYX_LOG_LEVEL "WARNING"
 
 WORKDIR /app
 
