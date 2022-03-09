@@ -1,6 +1,6 @@
 from marshmallow import fields
 
-from schema.request.GeneratorRequestSchema import GeneratorRequestSchema
+from onyx.schema.request.GeneratorRequestSchema import GeneratorRequestSchema
 
 
 class PersistenceRequestSchema(GeneratorRequestSchema):
