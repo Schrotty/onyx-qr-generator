@@ -25,7 +25,7 @@ spec:
         - name: ONYX_ENABLE_REDIS
           value: "true"
         - name: ONYX_REDIS_HOST
-          value: "10.107.135.213"
+          value: welcome-{{ CI_PROJECT_ID }}.edu.k8s.th-luebeck.dev
         - name: ONYX_REDIS_PORT
           value: "6379"
         ports:
