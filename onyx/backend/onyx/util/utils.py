@@ -20,3 +20,10 @@ def decode_log_level(level: str):
         return logging.ERROR
 
     return logging.WARNING
+
+
+def decode_mime_type(value: str):
+    if value.__contains__('image'):
+        return 'image'
+
+    return 'text'

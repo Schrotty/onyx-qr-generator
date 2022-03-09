@@ -1,5 +1,6 @@
 import base64
 import logging
+import os
 from io import BytesIO
 
 import qrcode
@@ -7,9 +8,10 @@ from qrcode.image.styledpil import StyledPilImage
 
 from onyx.util.styles import qr_default_style, qr_styles, qr_color_styles
 from onyx.util.StructMessage import StructMessage
+from onyx.util.StorageEntity import StorageEntity
 
 
-def build_response(payload, style=None):
+def build_response(payload, persistent=False, mime='plain/text', style=None):
     if style is None:
         logging.debug(StructMessage(message='Missing style information, using default style.'))
         style = qr_default_style
@@ -50,6 +52,18 @@ def build_response(payload, style=None):
                                         default=qr_default_style['qr_size']))
 
             style['qr_size'] = qr_default_style['qr_size']
+
+    # when enabled and flag is set persist payload
+    if persistent and bool(os.getenv('ONYX_ENABLE_REDIS', False)):
+        hashed = hash(payload).__str__()
+        logging.debug(StructMessage(message='Hashed payload', payload=payload, hash=hashed))
+        if not StorageEntity.save(hashed, {'data': payload, 'mime_type': mime}):
+            return {
+                'status': 'failure',
+                'payload': 'Unable to persist payload'
+            }
+
+        payload = f"https://{os.getenv('ONYX_HOSTNAME', 'localhost')}/api/persistence/{hashed}"
 
     buffered = BytesIO()
     qr = qrcode.QRCode(version=style['qr_size'], border=style['qr_border_size'])
