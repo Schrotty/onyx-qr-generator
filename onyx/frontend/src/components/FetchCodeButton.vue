@@ -84,25 +84,25 @@ async function fetchCode(payload, persistence) {
 }
 
 async function fetchOptions(url) {
-	return await fetch(url)
+	await fetch(url)
 		.then(async (response) => {
-			const data = await response.json();
+			if (response.ok) {
+				const data = await response.json();
 
-			/*if (!response.ok) {
-				return Promise.reject((data && data.message) || response.statusText);
-			}*/
-
-			return {
-				static_endpoint: data["api-endpoint-static"],
-				persistence_endpoint: data["api-endpoint-persistence"]
-			};
+				return {
+					static_endpoint: data["api-endpoint-static"],
+					persistence_endpoint: data["api-endpoint-persistence"]
+				};
+			}
 		})
 		.catch((error) => {
 			console.error(error);
-			return {
-				static_endpoint: "/api/static",
-				persistence_endpoint: "/api/persistence"
-			};
+			console.debug("Fallback to default endpoints!");
 		});
+
+	return {
+		static_endpoint: "/api/static",
+		persistence_endpoint: "/api/persistence"
+	};
 }
 </script>
