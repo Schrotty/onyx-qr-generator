@@ -88,9 +88,9 @@ async function fetchOptions(url) {
 		.then(async (response) => {
 			const data = await response.json();
 
-			if (!response.ok) {
+			/*if (!response.ok) {
 				return Promise.reject((data && data.message) || response.statusText);
-			}
+			}*/
 
 			return {
 				static_endpoint: data["api-endpoint-static"],
