@@ -14,9 +14,10 @@ spec:
       labels:
         app: onyx-backend
     spec:
+      imagePullSecrets: [{ name: gitlab-registry-credentials }]
       containers:
       - name: onyx-backend
-        image: schrotty/onyx-backend:latest
+        image: {{ CI_REGISTRY_IMAGE }}/onyx-backend:latest
         env:
         - name: PORT
           value: "44660"

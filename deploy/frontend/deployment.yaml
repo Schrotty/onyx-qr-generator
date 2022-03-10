@@ -14,9 +14,10 @@ spec:
       labels:
         app: onyx-frontend
     spec:
+      imagePullSecrets: [{ name: gitlab-registry-credentials }]
       containers:
       - name: onyx-frontend
-        image: schrotty/onyx-frontend:latest
+        image: {{ CI_REGISTRY_IMAGE }}/onyx-frontend:latest
         volumeMounts:
         - name: onyx-config
           mountPath: "/usr/share/nginx/html/config"
