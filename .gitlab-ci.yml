@@ -3,8 +3,8 @@ image: thlmylab/swakkd:1.22
 # Stages for jobs in their order of execution
 stages:
   - check
-  - component
   - build
+  - component
   - deploy
 
 variables:
