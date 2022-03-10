@@ -28,7 +28,7 @@ ENV ONYX_REDIS_PORT 6379
 
 WORKDIR /app
 
-ADD startup.sh /app
-ADD onyx /app/onyx
+COPY startup.sh /app
+COPY onyx /app/onyx
 
 CMD ["./startup.sh"]
