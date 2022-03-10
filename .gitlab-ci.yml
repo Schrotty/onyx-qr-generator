@@ -39,7 +39,7 @@ onyx-backend:
 
 # deploy to kubernetes
 deploy-redis:
-  stage: deploy
+  stage: component
   only:
     variables:
       - $DEPLOY == "true"
