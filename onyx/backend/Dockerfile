@@ -31,4 +31,5 @@ WORKDIR /app
 COPY startup.sh /app
 COPY onyx /app/onyx
 
-CMD ["./startup.sh"]
+RUN chmod +x ./startup.sh
+ENTRYPOINT ["./startup.sh"]
