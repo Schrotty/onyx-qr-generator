@@ -63,7 +63,7 @@ def build_response(payload, persistent=False, mime='plain/text', style=None):
                 'payload': 'Unable to persist payload'
             }
 
-        payload = f"https://{os.getenv('ONYX_HOSTNAME', 'localhost')}/api/persistence/{hashed}"
+        payload = f"{os.getenv('ONYX_HOSTNAME', 'http://localhost')}/api/persistence/{hashed}"
 
     buffered = BytesIO()
     qr = qrcode.QRCode(version=style['qr_size'], border=style['qr_border_size'])

@@ -25,9 +25,11 @@ spec:
         - name: ONYX_ENABLE_REDIS
           value: "true"
         - name: ONYX_REDIS_HOST
-          value: welcome-{{ CI_PROJECT_ID }}.edu.k8s.th-luebeck.dev
+          value: ONYX_REDIS_SERVICE_HOST
         - name: ONYX_REDIS_PORT
-          value: "6379"
+          value: ONYX_REDIS_SERVICE_PORT
+        - name: ONYX_HOSTNAME
+          value: http://welcome-{{ CI_PROJECT_ID }}.edu.k8s.th-luebeck.dev
         ports:
         - containerPort: 44660
         readinessProbe:
