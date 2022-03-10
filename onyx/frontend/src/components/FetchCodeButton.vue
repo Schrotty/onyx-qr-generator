@@ -86,6 +86,7 @@ async function fetchCode(payload, persistence) {
 async function fetchOptions(url) {
 	await fetch(url)
 		.then(async (response) => {
+			console.debug(response.ok);
 			if (response.ok) {
 				const data = await response.json();
 
