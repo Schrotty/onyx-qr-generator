@@ -16,4 +16,4 @@ class PersistenceList(MethodResource, Resource):
     @marshal_with(schema=GeneratorResponseSchema, code=201, description='Response containing the generated qr code as base64 encoded image string and the encode url to fetch the persistent payload.')
     def post(self, payload, style=None, **kwargs):
         logging.info(StructMessage(message='Received persistent qr request', payload=payload, style=style, persistent=True))
-        return build_response(payload, style=style, persistent=True)
+        return build_response(payload, style=style, persistent=True), 201
