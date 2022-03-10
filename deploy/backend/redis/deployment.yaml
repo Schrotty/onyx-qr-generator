@@ -13,7 +13,7 @@ spec:
     spec:
       volumes:
       - name: database
-        persistentVolumeClaim: { claimName: redis }
+        persistentVolumeClaim: { claimName: onyx-redis }
       containers:
       - name: redis
         image: redis:6.2-alpine

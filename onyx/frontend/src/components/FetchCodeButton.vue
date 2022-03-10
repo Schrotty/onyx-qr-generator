@@ -100,8 +100,8 @@ async function fetchOptions(url) {
 		.catch((error) => {
 			console.error(error);
 			return {
-				static_endpoint: "",
-				persistence_endpoint: ""
+				static_endpoint: "/api/static",
+				persistence_endpoint: "/api/persistence"
 			};
 		});
 }
