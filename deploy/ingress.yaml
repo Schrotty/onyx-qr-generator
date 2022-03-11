@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: onyx-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: onyx-frontend
+            port:
+              number: 80
+      - path: /api/
+        pathType: Prefix
+        backend:
+          service:
+            name: onyx-backend
+            port:
+              number: 44660

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onyx-frontend
+  labels:
+    app: onyx-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: onyx-frontend
+  template:
+    metadata:
+      labels:
+        app: onyx-frontend
+    spec:
+      imagePullSecrets: [{ name: gitlab-registry-credentials }]
+      containers:
+      - name: onyx-frontend
+        image: {{ CI_REGISTRY_IMAGE }}/onyx-frontend:latest
+        volumeMounts:
+        - name: onyx-config
+          mountPath: "/usr/share/nginx/html/config"
+          readOnly: true
+        ports:
+        - containerPort: 80
+      volumes:
+      - name: onyx-config
+        configMap:
+          name: onyx-frontend-config

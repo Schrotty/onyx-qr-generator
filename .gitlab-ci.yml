@@ -1,22 +1,17 @@
 image: thlmylab/swakkd:1.22
 
-stages:                         # Stages for jobs in their order of execution
+# Stages for jobs in their order of execution
+stages:
   - check
-  - component
   - build
+  - component
   - deploy
 
 variables:
-  DEPLOY_INGRESS: "false"        # deploys Ingress for project if set to true
-  DEPLOY_NGINX: "false"          # deploys NGINX static web server if set to true
-  DEPLOY_NODEJS_EXPRESS: "false" # deploy nodejs/expressjs if set to true
-  DEPLOY_PYTHON_FLASK: "false"   # deploy python-flask if set to true
-  DEPLOY_REDIS: "false"          # deploys Redis if set to true
-  DEPLOY_MINIO: "false"          # deploys minio if set to true
-  DEPLOY_MONGO: "false"          # deploys Mongo if set to true
-  DEPLOY_RABBITMQ: "false"       # deploys RabbitMQ if set to true
+  DEPLOY: "false"
 
-kubernetes:                     # checks K8S cluster access and configures gitlab-registry-credentials for image pulls
+# checks K8S cluster access and configures gitlab-registry-credentials for image pulls
+kubernetes:
   stage: check
   script:
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
@@ -25,132 +20,74 @@ kubernetes:                     # checks K8S cluster access and configures gitla
     - kubectl create secret docker-registry gitlab-registry-credentials --docker-server=$CI_REGISTRY --docker-username=image-registry --docker-password=$CI_REGISTRY_TOKEN -n $NS
     - echo "Great, kubectl seems to work with namespace $NS"
 
-registry:                       # checks Gitlab registry access (for image builds)
-  stage: check
-  script:
-    - cd nginx
-    - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - img build -t $CI_REGISTRY_IMAGE/nginx:latest .
-    - img push $CI_REGISTRY_IMAGE/nginx:latest
-    - echo "Great, image build and registry push seem to work for namespace $NS"
-
-nodejs-express:                 # builds nodejs container image
+# build & push docker images for frontend and backend
+onyx-frontend:
   stage: build
   script:
-    - cd nodejs-express
+    - cd onyx/frontend
     - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - img build -t $CI_REGISTRY_IMAGE/nodejs-express:latest .
-    - img push $CI_REGISTRY_IMAGE/nodejs-express:latest
+    - img build -t $CI_REGISTRY_IMAGE/onyx-frontend:latest .
+    - img push $CI_REGISTRY_IMAGE/onyx-frontend:latest
 
-nodejs-express-svc:            # deploys nodejs web service
-  stage: deploy
-  only:
-    variables:
-      - $DEPLOY_NODEJS_EXPRESS == "true"
-  script:
-    - cd nodejs-express
-    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
-    - NS=${NS:='default'}
-    - echo "Deploying to Kubernetes"
-    - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
-    - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
-    - mo deploy/svc.yaml | kubectl apply -n $NS -f -
-
-python-flask:                 # builds python-flask container image
+onyx-backend:
   stage: build
   script:
-    - cd python-flask
+    - cd onyx/backend
     - img login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - img build -t $CI_REGISTRY_IMAGE/python-flask:latest .
-    - img push $CI_REGISTRY_IMAGE/python-flask:latest
+    - img build -t $CI_REGISTRY_IMAGE/onyx-backend:latest .
+    - img push $CI_REGISTRY_IMAGE/onyx-backend:latest
 
-python-flask-svc:            # deploys python-flask web service
+# deploy to kubernetes
+deploy-redis:
+  stage: component
+  only:
+    variables:
+      - $DEPLOY == "true"
+  script:
+    - cd deploy
+    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
+    - NS=${NS:='default'}
+    - echo "Deploying 'onyx-backend' to Kubernetes"
+    - kubectl apply -n $NS -f backend/redis/pvc.yaml
+    - kubectl apply -n $NS -f backend/redis/
+
+deploy-backend:
   stage: deploy
   only:
     variables:
-      - $DEPLOY_PYTHON_FLASK == "true"
+      - $DEPLOY == "true"
   script:
-    - cd python-flask
+    - cd deploy
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
-    - echo "Deploying to Kubernetes"
-    - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
-    - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
-    - mo deploy/svc.yaml | kubectl apply -n $NS -f -
+    - echo "Deploying 'onyx-backend' to Kubernetes"
+    - mo backend/deployment.yaml | kubectl delete -n $NS -f - || true
+    - mo backend/deployment.yaml | kubectl apply -n $NS -f -
+    - mo backend/service.yaml | kubectl apply -n $NS -f -
 
-nginx-svc:                      # deploys static nginx web service
+deploy-frontend:
   stage: deploy
   only:
     variables:
-      - $DEPLOY_NGINX == "true"
+      - $DEPLOY == "true"
   script:
-    - cd nginx
+    - cd deploy
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
-    - echo "Deploying to Kubernetes"
-    - mo deploy/dep.yaml | kubectl delete -n $NS -f - || true
-    - mo deploy/dep.yaml | kubectl apply -n $NS -f - 
-    - mo deploy/svc.yaml | kubectl apply -n $NS -f -
+    - echo "Deploying 'onyx-frontend' to Kubernetes"
+    - mo frontend/config.yaml | kubectl apply -n $NS -f -
+    - mo frontend/deployment.yaml | kubectl delete -n $NS -f - || true
+    - mo frontend/deployment.yaml | kubectl apply -n $NS -f -
+    - mo frontend/service.yaml | kubectl apply -n $NS -f -
 
-ingress:                       # deploys project ingress to expose services cluster externally
+deploy-ingress:
   stage: deploy
   only:
     variables:
-      - $DEPLOY_INGRESS == "true"
+      - $DEPLOY == "true"
   script:
-    - cd ingress
+    - cd deploy
     - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
     - NS=${NS:='default'}
-    - mo ing.yaml | kubectl apply -n $NS -f -
-
-redis:                         # deploys redis database
-  stage: component
-  only:
-    variables:
-      - $DEPLOY_REDIS == "true"
-  script:
-    - cd redis
-    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
-    - NS=${NS:='default'}
-    - echo "Deploying Redis database component"
-    - kubectl apply -n $NS -f deploy/pvc.yaml 
-    - kubectl apply -n $NS -f deploy/ 
-
-mongo:                         # deploys mongo database
-  stage: component
-  only:
-    variables:
-      - $DEPLOY_MONGO == "true"
-  script:
-    - cd mongo
-    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
-    - NS=${NS:='default'}
-    - echo "Deploying Mongo database component"
-    - kubectl apply -n $NS -f deploy/pvc.yaml 
-    - kubectl apply -n $NS -f deploy/
-
-minio:                         # deploys minio object storage (S3 protocol)
-  stage: component
-  only:
-    variables:
-      - $DEPLOY_MINIO == "true"
-  script:
-    - cd minio
-    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
-    - NS=${NS:='default'}
-    - echo "Deploying minio object storage component"
-    - kubectl apply -n $NS -f deploy/pvc.yaml 
-    - kubectl apply -n $NS -f deploy/
-  
-rabbitmq:                      # deploys RabbitMQ message broker
-  stage: component
-  only:
-    variables:
-      - $DEPLOY_RABBITMQ == "true"
-  script:
-    - cd rabbitmq
-    - NS=$(cat $KUBECONFIG | yq e '.contexts[0].context.namespace' - -e) || true
-    - NS=${NS:='default'}
-    - echo "Deploying RabbitMQ message broker component"
-    - kubectl apply -n $NS -f deploy/pvc.yaml 
-    - kubectl apply -n $NS -f deploy/
+    - echo "Deploying Ingress to Kubernetes"
+    - mo ingress_prod.yaml | kubectl apply -n $NS -f -

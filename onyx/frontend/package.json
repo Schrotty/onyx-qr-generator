@@ -1,0 +1,33 @@
+{
+  "name": "onyx-frontend",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 5050",
+    "lint": "eslint . -c .eslintrc.json --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.4.3",
+    "@heroicons/vue": "^1.0.5",
+    "@tailwindcss/forms": "^0.4.0",
+    "axios": "^0.26.0",
+    "lucide-vue-next": "^0.17.2",
+    "spectre.css": "^0.5.9",
+    "vue": "^3.2.29",
+    "vuejs3-logger": "1.0.0"
+  },
+  "devDependencies": {
+    "@rushstack/eslint-patch": "^1.1.0",
+    "@vitejs/plugin-vue": "^2.1.0",
+    "@vue/eslint-config-prettier": "^7.0.0",
+    "autoprefixer": "^10.4.2",
+    "dotenv-webpack": "^7.1.0",
+    "eslint": "^8.10.0",
+    "eslint-plugin-vue": "^8.5.0",
+    "postcss": "^8.4.6",
+    "prettier": "^2.5.1",
+    "tailwindcss": "^3.0.22",
+    "vite": "^2.7.13"
+  }
+}

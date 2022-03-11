@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onyx-backend
+  labels:
+    app: onyx-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: onyx-backend
+  template:
+    metadata:
+      labels:
+        app: onyx-backend
+    spec:
+      imagePullSecrets: [{ name: gitlab-registry-credentials }]
+      containers:
+      - name: onyx-backend
+        image: {{ CI_REGISTRY_IMAGE }}/onyx-backend:latest
+        env:
+        - name: PORT
+          value: "44660"
+        - name: ONYX_LOG_LEVEL
+          value: "INFO"
+        - name: ONYX_ENABLE_REDIS
+          value: "true"
+        - name: ONYX_REDIS_HOST
+          value: "$(ONYX_REDIS_SERVICE_HOST)"
+        - name: ONYX_REDIS_PORT
+          value: "$(ONYX_REDIS_SERVICE_PORT)"
+        - name: ONYX_HOSTNAME
+          value: "http://welcome-6070.edu.k8s.th-luebeck.dev"
+        ports:
+        - containerPort: 44660
+        readinessProbe:
+          httpGet:
+            path: /api/heartbeat
+            port: 44660
+        livenessProbe:
+          httpGet:
+            path: /api/heartbeat
+            port: 44660

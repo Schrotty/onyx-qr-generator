@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Slabo 13px";
+    src: url("assets/Slabo13px-Regular.ttf");
+}
+
+@layer base {
+    html {
+        font-family: Inter, system-ui, sans-serif;
+    }
+}
+
+h1 {
+    font-family: "Slabo 13px", serif;
+    font-size: 32px;
+}

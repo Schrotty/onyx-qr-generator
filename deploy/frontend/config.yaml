@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: onyx-frontend-config
+data:
+  frontend.properties: |
+    {
+      "api-endpoint-static": "/api/static",
+      "api-endpoint-persistence": "/api/persistence"
+    }  
