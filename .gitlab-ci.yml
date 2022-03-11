@@ -8,7 +8,7 @@ stages:
   - deploy
 
 variables:
-  DEPLOY: "true"
+  DEPLOY: "false"
 
 # checks K8S cluster access and configures gitlab-registry-credentials for image pulls
 kubernetes:
