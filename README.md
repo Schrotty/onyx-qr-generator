@@ -96,5 +96,8 @@ Umgesetzt wurde das Frontend mittels *Vue.js*, einem JavaScript Framework und *T
 ### Konfiguration
 Die Konfiguration des Frontends beschränkt sich auf die Anbindung an die REST-Schnittstelle des Backends und erfolgt über die *config/onyx.json* in der die Endpoints für das Generieren von statischen und dynamischen QR-Codes hinterlegt werden. Für den flexiblen Einsatz in Kubernetes wird auf eine *ConfigMap* zurückgegriffen. Diese wird am Ort der *onyx.json* eingebunden und ermöglicht es so auch zur Laufzeit noch die Endpoints zu ändern ohne den Service neu bauen oder deployen zu müssen.
 
+## Impression
+![Kubernetes Übersicht](/docs/onyx.jpeg)
+
 ## License
 MIT
