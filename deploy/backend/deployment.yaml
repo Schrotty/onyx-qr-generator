@@ -14,10 +14,9 @@ spec:
       labels:
         app: onyx-backend
     spec:
-      imagePullSecrets: [{ name: gitlab-registry-credentials }]
       containers:
       - name: onyx-backend
-        image: {{ CI_REGISTRY_IMAGE }}/onyx-backend:latest
+        image: onyx-backend:latest
         env:
         - name: PORT
           value: "44660"
@@ -30,7 +29,7 @@ spec:
         - name: ONYX_REDIS_PORT
           value: "$(ONYX_REDIS_SERVICE_PORT)"
         - name: ONYX_HOSTNAME
-          value: "http://welcome-6070.edu.k8s.th-luebeck.dev"
+          value: "http://onyx.local"
         ports:
         - containerPort: 44660
         readinessProbe:
