@@ -4,13 +4,11 @@ import CentralControl from "./components/CentralControl.vue";
 import PlainInput from "./components/tabs/TextComponent.vue";
 import URLInput from "./components/tabs/URLComponent.vue";
 import MailInput from "./components/tabs/MailComponent.vue";
-import VCardInput from "./components/tabs/VCardComponent.vue";
 import WIFITabComponent from "./components/tabs/WIFIComponent.vue";
 import TwitterTabComponent from "./components/tabs/TwitterComponent.vue";
 
 import { markRaw, ref } from "vue";
 import {
-	Contact,
 	Link,
 	Mail,
 	Twitter,

@@ -1,0 +1,4 @@
+{
+  "api-endpoint-static": "http://localhost/api/static",
+  "api-endpoint-persistence": "http://localhost/api/persistence"
+}
